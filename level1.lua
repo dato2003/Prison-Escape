@@ -154,7 +154,7 @@ local function enterFrameListener()
     if holding then
         -- Holding button
 
-				print("right")
+				--print("right")
 				if player.x+5<=display.contentWidth then
 					player.x=player.x+5
 				end
@@ -172,7 +172,16 @@ local function right( event )
         holding = true
     elseif event.target.isFocus then
         if event.phase == "moved" then
-        elseif event.phase == "ended" then
+					--print("dank")
+
+				end
+				if(event.phase ~= "moved") then
+					holding = false
+					Runtime:removeEventListener( "enterFrame", enterFrameListener )
+					display.getCurrentStage():setFocus( nil )
+					event.target.isFocus = false
+				end
+        if event.phase == "ended" then
             holding = false
             Runtime:removeEventListener( "enterFrame", enterFrameListener )
             display.getCurrentStage():setFocus( nil )
@@ -186,7 +195,7 @@ local holding2 = false
 local function enterFrameListener2()
     if holding2 then
         -- Holding button
-				print("LEFT")
+				--print("LEFT")
 				if player.x-5>=0 then
 					player.x=player.x-5
 				end
@@ -204,7 +213,14 @@ local function left( event )
         holding2 = true
     elseif event.target.isFocus then
         if event.phase == "moved" then
-        elseif event.phase == "ended" then
+				end
+				if(event.phase ~= "moved") then
+					holding2 = false
+					Runtime:removeEventListener( "enterFrame", enterFrameListener2 )
+					display.getCurrentStage():setFocus( nil )
+					event.target.isFocus = false
+				end
+        if event.phase == "ended" then
             holding2 = false
             Runtime:removeEventListener( "enterFrame", enterFrameListener2 )
             display.getCurrentStage():setFocus( nil )

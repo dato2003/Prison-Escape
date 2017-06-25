@@ -90,7 +90,7 @@ function scene:create( event )
 
 	note:addEventListener("tap",musicchanger)
 
-	background_music=audio.loadStream("POL-crime-fighter-short.wav")
+	background_music=audio.loadStream("Extreme Music - Combat Ready (Epic Hybrid Rock Action).mp3")
 	audio.play(background_music ,{ channel=1, loops=-1, fadein=5000})
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )

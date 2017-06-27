@@ -107,7 +107,7 @@ end
 
 
 function scrollCity(self,event)
-	if self.x < -1*display.actualContentWidth+200 then
+	if self.x < -1* display.actualContentWidth + 200 then
 		self.x = display.actualContentWidth
 	else
 		self.x = self.x - self.speed
@@ -142,21 +142,23 @@ function exittomenu(event)
 end
 
 function jump (event)
-	if event.phase~="moved" and event.phase=="began" then
-		--print("jump")
-		player:applyForce(0,-20,player.x,player.y)
+	if event.phase~="moved" and event.phase=="began" and canjump==1 then
+		--print("jump"..canjump)
+		canjump=0
+		player:applyForce(0,-23,player.x,player.y)
 	end
 
 end
+
 
 local holding = false
 local function enterFrameListener()
     if holding then
         -- Holding button
-
+				player.xScale=0.1
 				--print("right")
-				if player.x+5<=display.contentWidth then
-					player.x=player.x+5
+				if player.x+3<=display.contentWidth then
+					player.x=player.x+3
 				end
     else
         -- Not holding
@@ -196,8 +198,9 @@ local function enterFrameListener2()
     if holding2 then
         -- Holding button
 				--print("LEFT")
-				if player.x-5>=0 then
-					player.x=player.x-5
+				player.xScale=-0.1
+				if player.x-3>=0 then
+					player.x=player.x-3
 				end
     else
         -- Not holding
@@ -230,6 +233,29 @@ local function left( event )
     return true
 end
 
+function Settings(event)
+		print("()")
+		panel:hide()
+		panel2:show()
+end
+
+function Back(event)
+		panel2:hide()
+		panel:show()
+end
+
+function onplayercollison(self,event)
+	if(event.other.id=="FL") then
+		--print("llsad")
+		canjump=1
+	end
+	if(event.other.id=="BR") then
+		--print("llsad")
+		composer.gotoScene( "over" ,"fade",500 )
+	end
+	--print( event.target.id )        --the first object in the collision
+	--print( event.other.id )         --the second object in the collision
+end
 
 function scene:create( event )
 
@@ -237,7 +263,7 @@ function scene:create( event )
 	--
 	-- INSERT code here to initialize the scene
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
-
+		canjump=0
 		local sceneGroup = self.view
 
 		physics.start()
@@ -250,13 +276,13 @@ function scene:create( event )
     ceiling.x = display.contentCenterX
     ceiling.y = -1*display.actualContentHeight-50
     physics.addBody(ceiling, "static", {density=.1, bounce=0.1, friction=.2})
-
+		ceiling.id="CL"
 
     local Floor = display.newImageRect("invTile.png",display.actualContentWidth,display.contentHeight*0.1)
     Floor.x = display.contentCenterX
-    Floor.y = display.actualContentHeight-20
+    Floor.y = display.actualContentHeight-10
     physics.addBody(Floor, "static", {density=.1, bounce=0.1, friction=.2})
-
+		Floor.id="FL"
 
 		local ground = display.newImageRect("BT.png",display.actualContentWidth,display.contentHeight*0.3)
 		ground.x=display.contentCenterX
@@ -270,7 +296,7 @@ function scene:create( event )
 
 
     city2 = display.newImage("city1.png")
-    city2.x = display.actualContentWidth
+    city2.x = display.actualContentWidth-100
     city2.y =	display.contentCenterY
     city2.speed = 3
 		--print(city1.x..city1.y)
@@ -318,8 +344,11 @@ function scene:create( event )
 		player:play()
 		player.x=display.contentWidth*0.1
 		player.y=display.contentHeight*0.9
+		player.id="PL"
 		local playershape = {-40,-60,40,50,-40,50,40,-60}
 		physics.addBody(player,{friction=1,shape=playershape})
+		player.collision = onplayercollison
+		player:addEventListener( "collision" )
 
 		--print("player cords:"..player.x .. " " .. player.y)
 
@@ -376,7 +405,7 @@ function scene:create( event )
 			location = "top",
 			onComplete = panelTransDone,
 			width = display.contentWidth * 0.5,
-			height = display.contentHeight * 0.45,
+			height = display.contentHeight * 0.7,
 			speed = 250,
 			inEasing = easing.outBack,
 			outEasing = easing.outCubic
@@ -401,7 +430,7 @@ function scene:create( event )
         strokeWidth = 4
     }
 		panel.resumeBTN.x=0
-		panel.resumeBTN.y=-30
+		panel.resumeBTN.y=-60
 		panel:insert(panel.resumeBTN)
 
 		panel.exitBTN = widget.newButton
@@ -418,9 +447,71 @@ function scene:create( event )
         strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
         strokeWidth = 4
     }
-		panel.exitBTN.x=0
-		panel.exitBTN.y=30
-		panel:insert(panel.exitBTN)
+			panel.exitBTN.x=0
+			panel.exitBTN.y=60
+			panel:insert(panel.exitBTN)
+
+			panel.SettingsBTN = widget.newButton
+			{
+			label = "Settings",
+			onEvent = Settings,
+			emboss = false,
+			shape = "roundedRect",
+			width = 200,
+			height = 40,
+			cornerRadius = 2,
+			fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+			strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
+			strokeWidth = 4
+			}
+
+	 	panel.SettingsBTN.x=0
+	 	panel.SettingsBTN.y=0
+
+	 	panel:insert(panel.SettingsBTN)
+
+	 	panel2 = widget.newPanel
+	 	{
+		 location = "top",
+		 onComplete = panelTransDone2,
+		 width = display.contentWidth * 0.5,
+		 height = display.contentHeight * 0.45,
+		 speed = 250,
+		 inEasing = easing.outBack,
+		 outEasing = easing.outCubic
+	 	}
+
+	 	panel2.background = display.newRect( 0, 0, panel2.width, panel2.height )
+	 	panel2.background:setFillColor( 100/255,60/255,0/255 )
+	 	panel2:insert( panel2.background )
+
+
+		panel2.exitBTN = widget.newButton
+    {
+        label = "Back",
+        onEvent = Back,
+        emboss = false,
+        -- Properties for a rounded rectangle button
+        shape = "roundedRect",
+        width = 200,
+        height = 40,
+        cornerRadius = 2,
+        fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+        strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
+        strokeWidth = 4
+    }
+
+		panel2.exitBTN.x=0
+		panel2.exitBTN.y=30
+
+		panel2:insert(panel2.exitBTN)
+
+		barricade=display.newImageRect( "barricade.png", 100, 100 )
+		barricade.x=display.contentCenterX
+		barricade.y=display.contentCenterY+110
+		barricade.id="BR"
+		local shape = {-40,-40,40,20,-40,20,40,-40}
+		physics.addBody( barricade, "dynamic",{friction=1,shape=shape})
 
 		sceneGroup:insert(background)
 		sceneGroup:insert(ceiling)
@@ -435,7 +526,9 @@ function scene:create( event )
 		sceneGroup:insert(jumpBtn)
 		sceneGroup:insert(rightBtn)
 		sceneGroup:insert(leftBtn)
+		sceneGroup:insert(barricade)
 		sceneGroup:insert(panel)
+		sceneGroup:insert(panel2)
 end
 
 

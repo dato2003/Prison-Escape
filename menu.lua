@@ -90,8 +90,10 @@ function scene:create( event )
 
 	note:addEventListener("tap",musicchanger)
 
-	--background_music=audio.loadStream("CombatReady.mp3")
-	--audio.play(background_music ,{ channel=1, loops=-1, fadein=5000})
+	background_music=audio.loadStream("backgorundmusic.mp3")
+	audio.play(background_music ,{ channel=1, loops=-1, fadein=5000})
+	audio.setVolume( 0.5, { channel = 1 } )
+
 	-- all display objects must be inserted into group
 	sceneGroup:insert( background )
 	sceneGroup:insert( titleLogo )
@@ -124,13 +126,14 @@ function scene:hide( event )
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 		--[[local currScene = composer.getSceneName( "current" )
 		local previusScene = composer.getSceneName( "previous" )
-		print(currScene .. previusScene)
+		print(currScene .. previusScene)]]
 		-- Recycle the scene (its view is removed but its scene object remains in memory)
 		Runtime:removeEventListener("enterFrame",city1)
 		Runtime:removeEventListener("enterFrame",city2)
 		Runtime:removeEventListener("enterFrame",city3)
 		Runtime:removeEventListener("enterFrame",city4)
-		composer.removeScene( "level1", true )]]
+		--Runtime:removeEventListener("enterFrame",barricade)
+		composer.removeScene( "level1", true )
 		--print("logging")
 	elseif phase == "did" then
 		-- Called when the scene is now off screen

@@ -3,7 +3,7 @@
 -- level1.lua
 --
 -----------------------------------------------------------------------------------------
-
+math.randomseed( os.time() )
 local composer = require( "composer" )
 local scene = composer.newScene()
 
@@ -99,19 +99,98 @@ function widget.newPanel (options)
 	return container
 end
 
+local spawnTimer
+local spawnedObjects = {}
+
+local spawnParams = {
+    xMin = display.contentWidth*0.8,
+    xMax = display.contentWidth*0.9,
+    yMin = display.contentCenterY+110,
+    yMax = display.contentCenterY+110,
+    spawnTime = 1000,
+    spawnOnTimer = 12,
+    spawnInitial = 4
+}
+
+
+-- Spawn an item
+function spawnItem( bounds )
+		--[[barricade=display.newImageRect( "barricade.png", 100, 100 )
+		barricade.x=display.contentCenterX
+		barricade.y=display.contentCenterY+110
+		barricade.id="BR"
+		local shape = {-40,-40,40,20,-40,20,40,-40}
+		physics.addBody( barricade, "kinematic",{friction=1,shape=shape})
+		barricade.isSensor=true]]
+    -- create sample item
+    local item = display.newImageRect( "barricade.png", 100, 100 )
+		item.speed=4
+		item.enterFrame = scrollCity
+		item.id="BR"
+		Runtime:addEventListener("enterFrame", item)
+		--sceneGroup:insert(item)
+    -- position item randomly within set bounds
+    item.x = math.random( bounds.xMin, bounds.xMax )
+    item.y = math.random( bounds.yMin, bounds.yMax )
+    -- add item to spawnedObjects table for tracking purposes
+		local shape = {-40,-40,40,20,-40,20,40,-40}
+		physics.addBody( item, "kinematic",{friction=1,shape=shape})
+		item.isSensor=true
+
+		jumpBtn:toFront()
+		rightBtn:toFront()
+		leftBtn:toFront()
+
+    spawnedObjects[#spawnedObjects+1] = item
+end
+
+function spawnController( action, params )
+	-- cancel timer on "start" or "stop", if it exists
+     if ( spawnTimer and ( action == "start" or action == "stop" ) ) then
+         timer.cancel( spawnTimer )
+     end
+		 -- Start spawning
+	if ( action == "start" ) then
+			-- gather/set spawning bounds
+			local spawnBounds = {}
+			spawnBounds.xMin = params.xMin or 0
+			spawnBounds.xMax = params.xMax or display.contentWidth
+			spawnBounds.yMin = params.yMin or 0
+			spawnBounds.yMax = params.yMax or display.contentHeight
+			-- gather/set other spawning params
+			local spawnTime = params.spawnTime or 1000
+			local spawnOnTimer = params.spawnOnTimer or 50
+			local spawnInitial = params.spawnInitial or 0
+		spawnTimer = timer.performWithDelay( math.random(3000, 5000),
+				function() spawnItem( spawnBounds ); end,
+		-1 )elseif ( action == "pause" ) then
+				timer.pause( spawnTimer )
+		-- Resume spawning
+		elseif ( action == "resume" ) then
+				timer.resume( spawnTimer )
+		end
+end
+
 function removeAllListeners(obj)
   obj._functionListeners = nil
   obj._tableListeners = nil
 	print("K")
 end
 
-
+--Todo fix barricade loops
 function scrollCity(self,event)
+	if self ~= nil then
+	if self.id=="BR" and self.x < -1* display.actualContentWidth + 200 then
+		self:removeSelf()
+		print("logging")
+	end
+end
 	if self.x < -1* display.actualContentWidth + 200 then
 		self.x = display.actualContentWidth
 	else
 		self.x = self.x - self.speed
 	end
+
 end
 
 function resumegame()
@@ -120,9 +199,10 @@ function resumegame()
 		city3.speed=6
 		city4.speed=6
 		player:play()
-		audio.resume( 1 )
-		print("dasdas")
+		--audio.resume( 1 )
+		--print("dasdas")
 		panel:hide()
+		spawnController("resume")
 end
 
 function Pause()
@@ -131,8 +211,12 @@ function Pause()
 		city3.speed=0
 		city4.speed=0
 		player:pause()
+		for k,v in pairs(spawnedObjects) do
+				print("da")
+		end
 		--audio.pause( 1 )
 		panel:show()
+		spawnController("pause")
 end
 
 function exittomenu(event)
@@ -234,7 +318,7 @@ local function left( event )
 end
 
 function Settings(event)
-		print("()")
+		--print("()")
 		panel:hide()
 		panel2:show()
 end
@@ -251,10 +335,40 @@ function onplayercollison(self,event)
 	end
 	if(event.other.id=="BR") then
 		--print("llsad")
-		composer.gotoScene( "over" ,"fade",500 )
+		--physics.removeBody( event.other )
+		local myClosure = function()
+			rightBtn.isVisible=false
+			leftBtn.isVisible=false
+			jumpBtn.isVisible=false
+			--player.x=display.contentCenterX
+			--player.y=display.contentCenterY
+			for i=1,#spawnedObjects do
+				--print(i)
+				Runtime:removeEventListener("enterFrame",spawnedObjects[i])
+				if spawnedObjects[i]~=nil then
+						print("deleted")
+						spawnedObjects[i]:removeSelf()
+						spawnedObjects[i]=nil
+				end
+			end
+			spawnController( "stop" )
+			composer.gotoScene( "over" ,"flipFadeOutIn",500 )
+		end
+		timer.performWithDelay( 500, myClosure, 1 )
 	end
 	--print( event.target.id )        --the first object in the collision
 	--print( event.other.id )         --the second object in the collision
+end
+
+function sliderListener( event )
+	local value = event.value
+
+	audioVolume = value / 100
+	audioVolume = string.format('%.02f', audioVolume )
+
+	panel2.volumeLabel.text = "Music Volume: " .. audioVolume
+
+		audio.setVolume( audioVolume, { channel = 1 } )
 end
 
 function scene:create( event )
@@ -503,15 +617,26 @@ function scene:create( event )
 
 		panel2.exitBTN.x=0
 		panel2.exitBTN.y=30
-
 		panel2:insert(panel2.exitBTN)
 
-		barricade=display.newImageRect( "barricade.png", 100, 100 )
-		barricade.x=display.contentCenterX
-		barricade.y=display.contentCenterY+110
-		barricade.id="BR"
-		local shape = {-40,-40,40,20,-40,20,40,-40}
-		physics.addBody( barricade, "dynamic",{friction=1,shape=shape})
+		audioVolume = 0.5
+
+	 	panel2.volumeSlider = widget.newSlider
+		{
+			width = display.contentWidth*0.35,
+			orientation = "horizontal",
+			listener = sliderListener
+		}
+		panel2.volumeSlider.x=-80
+		panel2.volumeSlider.y=-30
+		panel2:insert(panel2.volumeSlider)
+
+		panel2.volumeLabel = display.newText( "Music Volume: " .. audioVolume, 0 , panel2.volumeSlider.y-25,
+		 native.systemFont, 18 )
+
+		panel2:insert(panel2.volumeLabel)
+
+		spawnController("start",spawnParams)
 
 		sceneGroup:insert(background)
 		sceneGroup:insert(ceiling)
@@ -521,12 +646,12 @@ function scene:create( event )
 		sceneGroup:insert(city3)
 		sceneGroup:insert(city4)
 		sceneGroup:insert(ground)
+		--sceneGroup:insert(barricade)
 		sceneGroup:insert(player)
 		sceneGroup:insert(PauseBtn)
 		sceneGroup:insert(jumpBtn)
 		sceneGroup:insert(rightBtn)
 		sceneGroup:insert(leftBtn)
-		sceneGroup:insert(barricade)
 		sceneGroup:insert(panel)
 		sceneGroup:insert(panel2)
 end
@@ -556,6 +681,9 @@ function scene:show( event )
 
 			city4.enterFrame = scrollCity
 			Runtime:addEventListener("enterFrame", city4)
+
+			--barricade.enterFrame = scrollCity
+			--Runtime:addEventListener("enterFrame", barricade)
 			--print("LOLLOL")
 		end
 	elseif phase == "did" then

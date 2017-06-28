@@ -61,6 +61,8 @@ function scene:create( event )
 	playBtn.x = display.contentCenterX
 	playBtn.y = display.contentHeight - 70
 
+
+
 	--background_music=audio.loadStream("CombatReady.mp3")
 	--audio.play(background_music ,{ channel=1, loops=-1, fadein=5000})
 	-- all display objects must be inserted into group
@@ -100,6 +102,7 @@ function scene:hide( event )
 		Runtime:removeEventListener("enterFrame",city2)
 		Runtime:removeEventListener("enterFrame",city3)
 		Runtime:removeEventListener("enterFrame",city4)
+		--Runtime:removeEventListener("enterFrame",barricade)
 		composer.removeScene( "level1", true )
 		--print("logging")
 	elseif phase == "did" then

@@ -12,7 +12,7 @@ local widget = require "widget"
 
 --------------------------------------------
 -- forward declarations and other locals
-local playBtn
+local playBtn,data,contents,myText,myText2
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
@@ -23,6 +23,122 @@ local function onPlayBtnRelease()
 	return true	-- indicates successful touch
 end
 
+function doesFileExist( fname, path )
+
+    local results = false
+
+    -- Path for the file
+    local filePath = system.pathForFile( fname, path )
+
+    if ( filePath ) then
+        local file, errorString = io.open( filePath, "r" )
+
+        if not file then
+            -- Error occurred; output the cause
+          --  print( "File error: " .. errorString )
+        else
+            -- File exists!
+            --print( "File found: " .. fname )
+            results = true
+            -- Close the file handle
+            file:close()
+        end
+    end
+
+    return results
+end
+function updatestatus()
+	-- body...
+if doesFileExist("record.txt",system.DocumentsDirectory) then
+	-- Path for the file to read
+local path = system.pathForFile( "record.txt", system.DocumentsDirectory )
+
+-- Open the file handle
+local file, errorString = io.open( path, "r" )
+
+if not file then
+    -- Error occurred; output the cause
+    print( "File error: " .. errorString )
+else
+    -- Read data from file
+    data = file:read( "*a" )
+	--	myText.text=data
+    -- Output the file contents
+    print( "data: " .. data )
+    -- Close the file handle
+    io.close( file )
+end
+
+file = nil
+end
+
+if doesFileExist("records.txt",system.DocumentsDirectory) then
+	local path = system.pathForFile( "records.txt", system.DocumentsDirectory )
+
+	-- Open the file handle
+	local file, errorString = io.open( path, "r" )
+
+	if not file then
+	    -- Error occurred; output the cause
+	    print( "File error: " .. errorString )
+	else
+	    -- Read data from file
+	    contents = file:read( "*a" )
+		--	myText2.text=contents
+	    -- Output the file contents
+			if data>contents then
+				contents=data
+				local saveData = data
+				contents=data
+				--myText2.text=data
+				-- Path for the file to write
+				local path = system.pathForFile( "records.txt", system.DocumentsDirectory )
+
+				-- Open the file handle
+				local file, errorString = io.open( path, "w" )
+
+				if not file then
+						-- Error occurred; output the cause
+						print( "File error: " .. errorString )
+				else
+						-- Write data to file
+						file:write( saveData )
+						-- Close the file handle
+						io.close( file )
+				end
+
+				file = nil
+				print("data:"..data.." contents:"..contents)
+			end
+	    print( "contents".. contents )
+	    -- Close the file handle
+	    io.close( file )
+	end
+
+	file = nil
+else
+	-- Data (string) to write
+local saveData = data
+--myText2.text=data
+-- Path for the file to write
+local path = system.pathForFile( "records.txt", system.DocumentsDirectory )
+
+-- Open the file handle
+local file, errorString = io.open( path, "w" )
+
+if not file then
+    -- Error occurred; output the cause
+    print( "File error: " .. errorString )
+else
+    -- Write data to file
+    file:write( saveData )
+    -- Close the file handle
+    io.close( file )
+end
+
+file = nil
+end
+end
 function scene:create( event )
 	local sceneGroup = self.view
 
@@ -58,10 +174,17 @@ function scene:create( event )
 			strokeColor = { default={0,0,1,1}, over={0.8,0.8,1,1} },
 			strokeWidth = 4
 	}
+
 	playBtn.x = display.contentCenterX
 	playBtn.y = display.contentHeight - 70
 
+	updatestatus()
 
+	myText = display.newText( "Score:"..data, display.contentCenterX, display.contentCenterY-100,
+	native.systemFont, 16 )
+
+	myText2 = display.newText( "High Score:"..contents, display.contentCenterX, display.contentCenterY-50,
+	native.systemFont, 16 )
 
 	--background_music=audio.loadStream("CombatReady.mp3")
 	--audio.play(background_music ,{ channel=1, loops=-1, fadein=5000})
@@ -69,6 +192,8 @@ function scene:create( event )
 	sceneGroup:insert( background )
 	sceneGroup:insert( Text )
 	sceneGroup:insert( playBtn )
+	sceneGroup:insert( myText)
+	sceneGroup:insert( myText2)
 end
 
 function scene:show( event )
@@ -76,7 +201,7 @@ function scene:show( event )
 	local phase = event.phase
 
 	if phase == "will" then
-		-- Called when the scene is still off screen and is about to move on screen
+		-- Called when the scene is still off screen and is about to move on scree
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
 		--
@@ -105,8 +230,10 @@ function scene:hide( event )
 		--Runtime:removeEventListener("enterFrame",barricade)
 		composer.removeScene( "level1", true )
 		--print("logging")
+
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
+
 	end
 end
 

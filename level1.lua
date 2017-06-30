@@ -9,7 +9,7 @@ local scene = composer.newScene()
 
 local physics = require ("physics")
 local widget = require ("widget")
-physics.setDrawMode( "hybrid" )
+--physics.setDrawMode( "hybrid" )
 --------------------------------------------
 
 function widget.newPanel (options)
@@ -339,6 +339,27 @@ function onplayercollison(self,event)
 		--physics.removeBody( event.other )
 		local myClosure = function()
 			timer.cancel( game )
+
+		local saveData = meters
+
+		-- Path for the file to write
+		local path = system.pathForFile( "record.txt", system.DocumentsDirectory )
+
+			-- Open the file handle
+		local file, errorString = io.open( path, "w" )
+
+		if not file then
+    	-- Error occurred; output the cause
+    	print( "File error: " .. errorString )
+			else
+    	-- Write data to file
+    	file:write( saveData )
+    	-- Close the file handle
+    	io.close( file )
+		end
+
+			file = nil
+
 			rightBtn.isVisible=false
 			leftBtn.isVisible=false
 			jumpBtn.isVisible=false

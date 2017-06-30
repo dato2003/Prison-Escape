@@ -134,6 +134,7 @@ function scene:hide( event )
 		Runtime:removeEventListener("enterFrame",city4)
 		--Runtime:removeEventListener("enterFrame",barricade)
 		composer.removeScene( "level1", true )
+		composer.removeScene( "over", true )
 		--print("logging")
 	elseif phase == "did" then
 		-- Called when the scene is now off screen

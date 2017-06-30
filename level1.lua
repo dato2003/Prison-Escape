@@ -9,7 +9,7 @@ local scene = composer.newScene()
 
 local physics = require ("physics")
 local widget = require ("widget")
---physics.setDrawMode( "hybrid" )
+physics.setDrawMode( "hybrid" )
 --------------------------------------------
 
 function widget.newPanel (options)
@@ -180,9 +180,10 @@ end
 --Todo fix barricade loops
 function scrollCity(self,event)
 	if self ~= nil then
-	if self.id=="BR" and self.x < -1* display.actualContentWidth + 200 then
-		self:removeSelf()
-		print("logging")
+	if self ~= nil and self.id=="BR" and self.x < -1* display.actualContentWidth + 200 then
+		Runtime:removeEventListener("enterFrame",self)
+		--self:removeSelf()
+		--print("logging")
 	end
 end
 	if self.x < -1* display.actualContentWidth + 200 then
@@ -337,6 +338,7 @@ function onplayercollison(self,event)
 		--print("llsad")
 		--physics.removeBody( event.other )
 		local myClosure = function()
+			timer.cancel( game )
 			rightBtn.isVisible=false
 			leftBtn.isVisible=false
 			jumpBtn.isVisible=false
@@ -371,6 +373,11 @@ function sliderListener( event )
 		audio.setVolume( audioVolume, { channel = 1 } )
 end
 
+function increaselenght()
+		meters=meters+1
+		print(meters)
+end
+
 function scene:create( event )
 
 	-- Called when the scene's view does not exist.
@@ -378,6 +385,11 @@ function scene:create( event )
 	-- INSERT code here to initialize the scene
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 		canjump=0
+		meters=0
+
+		game=timer.performWithDelay( 1000, increaselenght , -1 )
+
+
 		local sceneGroup = self.view
 
 		physics.start()

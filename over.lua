@@ -61,7 +61,7 @@ if not file then
     print( "File error: " .. errorString )
 else
     -- Read data from file
-    data = file:read( "*a" )
+    data = file:read( "*n" )
 	--	myText.text=data
     -- Output the file contents
     print( "data: " .. data )
@@ -83,41 +83,46 @@ if doesFileExist("records.txt",system.DocumentsDirectory) then
 	    print( "File error: " .. errorString )
 	else
 	    -- Read data from file
-	    contents = file:read( "*a" )
+	    contents = file:read( "*n" )
+
 		--	myText2.text=contents
 	    -- Output the file contents
-			if data>contents then
-				contents=data
-				local saveData = data
-				contents=data
-				--myText2.text=data
-				-- Path for the file to write
-				local path = system.pathForFile( "records.txt", system.DocumentsDirectory )
+			--print("data2:"..data)
+			 print( "contents".. contents )
+			 
+			 if data>contents then
+			 	print("logging")
+			 	contents=data
+			 	local saveData = data
+			 	contents=data
+			 	--myText2.text=data
+			 	-- Path for the file to write
+			 	local path = system.pathForFile( "records.txt", system.DocumentsDirectory )
 
-				-- Open the file handle
-				local file, errorString = io.open( path, "w" )
+			 	-- Open the file handle
+			 	local file, errorString = io.open( path, "w" )
 
-				if not file then
-						-- Error occurred; output the cause
-						print( "File error: " .. errorString )
-				else
-						-- Write data to file
-						file:write( saveData )
-						-- Close the file handle
-						io.close( file )
-				end
+			 	if not file then
+			 			-- Error occurred; output the cause
+			 			print( "File error: " .. errorString )
+			 	else
+			 			-- Write data to file
+			 			file:write( saveData )
+			 			-- Close the file handle
+			 			io.close( file )
+			 	end
 
-				file = nil
-				print("data:"..data.." contents:"..contents)
-			end
-	    print( "contents".. contents )
-	    -- Close the file handle
-	    io.close( file )
-	end
+			 	file = nil
+			 	print("data:"..data.." contents:"..contents)
+			 end
+			 -- Close the file handle
+			 io.close( file )
+			 end
 
 	file = nil
 else
 	-- Data (string) to write
+	contents=data
 local saveData = data
 --myText2.text=data
 -- Path for the file to write

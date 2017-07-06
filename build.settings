@@ -13,7 +13,7 @@ settings =
 		default = "landscapeRight",
 		supported = { "landscapeRight", },
 	},
-	
+
 	excludeFiles =
 	{
 		-- Include only the necessary icon files on each platform
@@ -54,7 +54,7 @@ settings =
 			},
 		},
 	},
-	
+
 	--
 	-- Android Section
 	--
@@ -65,4 +65,10 @@ settings =
 			"android.permission.INTERNET",
 		},
 	},
+
+	plugins =
+    {
+      ["plugin.adbuddiz"] = { publisherId = "com.adbuddiz" }
+    }
+		
 }

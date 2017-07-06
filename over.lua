@@ -11,6 +11,8 @@ local scene = composer.newScene()
 local widget = require "widget"
 
 --------------------------------------------
+local AdBuddiz = require "plugin.adbuddiz"
+
 -- forward declarations and other locals
 local playBtn,data,contents,myText,myText2
 
@@ -64,7 +66,7 @@ else
     data = file:read( "*n" )
 	--	myText.text=data
     -- Output the file contents
-    print( "data: " .. data )
+    --print( "data: " .. data )
     -- Close the file handle
     io.close( file )
 end
@@ -88,10 +90,10 @@ if doesFileExist("records.txt",system.DocumentsDirectory) then
 		--	myText2.text=contents
 	    -- Output the file contents
 			--print("data2:"..data)
-			 print( "contents".. contents )
-			 
+			 --print( "contents".. contents )
+
 			 if data>contents then
-			 	print("logging")
+			 	--print("logging")
 			 	contents=data
 			 	local saveData = data
 			 	contents=data
@@ -113,7 +115,7 @@ if doesFileExist("records.txt",system.DocumentsDirectory) then
 			 	end
 
 			 	file = nil
-			 	print("data:"..data.." contents:"..contents)
+			 --	print("data:"..data.." contents:"..contents)
 			 end
 			 -- Close the file handle
 			 io.close( file )
@@ -143,6 +145,8 @@ end
 
 file = nil
 end
+AdBuddiz.cacheAds()
+AdBuddiz.showAd()
 end
 function scene:create( event )
 	local sceneGroup = self.view
